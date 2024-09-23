@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Engine</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url(omg.jpg!sw800);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: white;
+            font-size: 76px;
+            margin-bottom: 30px;
+            font-weight: bold;
+            letter-spacing: -1.5px;
+        }
+        .search-box {
+            display: flex;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 24px;
+            padding: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        #searchInput {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            padding: 0 15px;
+        }
+        .btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0 15px;
+        }
+        #search {
+            color: #4285f4;
+        }
+        #clearHistory {
+            color: #5f6368;
+        }
+        .btn:hover {
+            color: #202124;
+        }
+        h2 {
+            color: white;
+            margin-top: 20px;
+        }
+        #searchHistory {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+        #searchHistory li {
+            background: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .clear-item {
+            background: none;
+            border: none;
+            color: #5f6368;
+            cursor: pointer;
+        }
+        .clear-item:hover {
+            color: #202124;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="search-container">
+        <h1>Chercher ici</h1>
+        <div class="search-box">
+            <input type="search" placeholder=" chercher ici or type a URL" id="searchInput">
+            <button id="search" class="btn">
+                <i class="fas fa-search"></i>
+            </button>
+            <button id="clearHistory" class="btn">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <h2>Search History</h2>
+        <ul id="searchHistory"></ul>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('search');
+        const clearHistoryButton = document.getElementById('clearHistory');
+        const searchHistoryElement = document.getElementById('searchHistory');
+
+        function loadSearchHistory() {
+            const history = JSON.parse(localStorage.getItem('searchHistory')) || [];
+            searchHistoryElement.innerHTML = '';
+            history.forEach((search, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${search}</span>
+                    <button class="clear-item" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                searchHistoryElement.appendChild(li);
+            });
+        }
+
+        function saveSearchTerm(term) {
+            const history = JSON.parse(localStorage.getItem('searchHistory')) || [];
+            history.unshift(term);
+            localStorage.setItem('searchHistory', JSON.stringify(history.slice(0, 10)));
+        }
+
+        function clearSearchHistory() {
+            localStorage.removeItem('searchHistory');
+            loadSearchHistory();
+        }
+
+        function removeSearchItem(index) {
+            const history = JSON.parse(localStorage.getItem('searchHistory')) || [];
+            history.splice(index, 1);
+            localStorage.setItem('searchHistory', JSON.stringify(history));
+            loadSearchHistory();
+        }
+
+        searchButton.addEventListener('click', () => {
+            const searchTerm = searchInput.value.trim();
+            if (searchTerm) {
+                saveSearchTerm(searchTerm);
+                loadSearchHistory();
+                searchInput.value = '';
+            }
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchButton.click();
+            }
+        });
+
+        clearHistoryButton.addEventListener('click', clearSearchHistory);
+
+        searchHistoryElement.addEventListener('click', (e) => {
+            if (e.target.closest('.clear-item')) {
+                const index = e.target.closest('.clear-item').dataset.index;
+                removeSearchItem(index);
+            }
+        });
+
+        window.onload = loadSearchHistory;
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
